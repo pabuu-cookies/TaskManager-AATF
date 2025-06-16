@@ -1,4 +1,6 @@
 import { readJsonFile, writeJsonFile } from "../utils/fileHelper.js";
+import { nanoid } from "nanoid";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
@@ -16,12 +18,13 @@ export async function registerUser(name, email, password) {
       return { success: false, status: 409, message: "User already exists" };
     }
 
-    users.push({ name, email, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    users.push({ id: nanoid(), name, email, password: hashedPassword });
     await writeJsonFile(USERS_FILE, users);
 
     return { success: true };
   } catch (err) {
-    console.error("❌ Failed to register user:", err);
+    console.error(" Failed to register user:", err);
     return { success: false, message: "Server error" };
   }
 }
@@ -29,36 +32,34 @@ export async function registerUser(name, email, password) {
 export async function loginUser(email, password) {
   try {
     const users = await readJsonFile(USERS_FILE);
-
     const user = users.find((u) => u.email === email);
+
     if (!user) {
-      return {
-        success: false,
-        status: 404,
-        message: "User not found",
-      };
+      return { success: false, status: 404, message: "User not found" };
     }
 
-    if (user.password !== password) {
-      return {
-        success: false,
-        status: 401,
-        message: "Incorrect password",
-      };
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return { success: false, status: 401, message: "Incorrect password" };
     }
-    console.log(typeof JWT_EXPIRY, JWT_EXPIRY);
 
-    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+    const tokenPayload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+    };
+
+    const token = jwt.sign(tokenPayload, JWT_SECRET, { expiresIn: JWT_EXPIRY });
 
     return {
       success: true,
       data: {
-        email,
+        user: tokenPayload,
         token,
       },
     };
   } catch (err) {
-    console.error("❌ Login error:", err);
+    console.error("Login error:", err);
     return {
       success: false,
       message: "Server error",

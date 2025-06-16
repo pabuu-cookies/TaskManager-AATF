@@ -1,7 +1,12 @@
-export function successResponse(data = {}, status = 200) {
+export function successResponse(data = {}, status = 200, headers = {}) {
+  const finalHeaders = new Headers({
+    "Content-Type": "application/json",
+    ...headers,
+  });
+
   return new Response(JSON.stringify({ success: true, ...data }), {
     status,
-    headers: { "Content-Type": "application/json" },
+    headers: finalHeaders,
   });
 }
 

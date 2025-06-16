@@ -1,18 +1,8 @@
 [
   {
-    "email": "test@gmail.com",
-    "password": "1234"
-  },
-  {
-    "email": "test2",
-    "password": "123456"
-  },
-  {
-    "email": "teste2",
-    "password": "123456"
-  },
-  {
-    "email": "teste3",
-    "password": "123456"
+    "id": "VIaPTEQYrg3jpuFh1NJAE",
+    "name": "pabuu ",
+    "email": "pkharel156@gnail.com",
+    "password": "$2b$10$cZRSNKyDjtgTWomaZJXQZeqW8Xt5QsxLLZLdnGxtZ2pZsFke2kfLG"
   }
 ]

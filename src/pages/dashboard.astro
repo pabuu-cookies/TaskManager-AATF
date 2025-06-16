@@ -1,0 +1,183 @@
+---
+import { verifyAuth } from "../lib/utils/verifyAuth.js";
+
+const { user, error } = await verifyAuth(Astro.request);
+
+if (error) {
+  return Astro.redirect("/");
+} 
+
+import { Trash2, Edit } from '@lucide/astro';
+import BaseLayout from "../layouts/baseLayout.astro";
+import AddTodoForm from "../components/AddTodoForm.astro";
+import Header from "../components/Header.astro";
+import TodoStats from "../components/todoStats.astro";
+
+---
+
+<BaseLayout>
+  <div
+  class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50"
+  x-data="{
+    todos: [],
+    filter: 'all',
+    editingId: null,
+
+    get completedCount() {
+      return this.todos.filter(todo => todo.completed).length;
+    },
+    get remainingCount() {
+      return this.todos.filter(todo => !todo.completed).length;
+    },
+    get filteredTodos() {
+      if (this.filter === 'active') return this.todos.filter(t => !t.completed);
+      if (this.filter === 'completed') return this.todos.filter(t => t.completed);
+      return this.todos;
+    },
+    get stats() {
+      return {
+        total: this.todos.length,
+        completed: this.completedCount,
+        remaining: this.remainingCount,
+      };
+    },
+
+    async fetchTodos() {
+      try {
+        const res = await fetch('/api/todo');
+        const json = await res.json();
+        this.todos = json.data;
+      } catch (e) {
+        alert('❌ Failed to fetch todos');
+      }
+    },
+
+    async toggleTodo(id) {
+      const todo = this.todos.find(t => t.id === id);
+      if (!todo) return;
+      try {
+        const res = await fetch(`/api/todo/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ completed: !todo.completed })
+        });
+        const updated = await res.json();
+        this.todos = this.todos.map(t => t.id === id ? updated : t);
+      } catch {
+        alert('❌ Failed to update task');
+      }
+    },
+
+    async saveEdit(todo) {
+      try {
+      console.log(todo.text);
+        const res = await fetch(`/api/todo/${todo.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: todo.text })
+        });
+        const updated = await res.json();
+        this.$dispatch('todo-updated', updated);
+      } catch {
+        alert('❌ Failed to update');
+      }
+    },
+
+    async deleteTodo(id) {
+      try {
+        await fetch(`/api/todo/${id}`, { method: 'DELETE' });
+        this.todos = this.todos.filter(t => t.id !== id);
+      } catch {
+        alert('❌ Failed to delete task');
+      }
+    }
+  }"
+  x-init="fetchTodos()"
+>
+    <Header />
+
+    <main class="container mx-auto px-4 py-8">
+      <div class="max-w-3xl mx-auto">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div class="p-6 bg-purple-600 text-white">
+            <h1 class="text-2xl font-bold">My Tasks</h1>
+            <TodoStats x-bind:stats="stats" />
+
+          </div>
+
+          <div class="p-6">
+            <AddTodoForm x-on:new-todo-added="todos.push($event.detail)" />
+
+            <!-- filer tabs -->
+            <div class="mt-2 p-2">
+              <div class="flex gap-4">
+                <button class="btn" :class="{ 'font-bold bg-gray-100 text-gray-700 hover:bg-gray-200': filter === 'all' }" @click="filter = 'all'">All</button>
+                <button class="btn" :class="{ 'font-bold bg-gray-100 text-gray-700 hover:bg-gray-200': filter === 'active' }" @click="filter = 'active'">Active</button>
+                <button class="btn" :class="{ 'font-bold bg-gray-100 text-gray-700 hover:bg-gray-200': filter === 'completed' }" @click="filter = 'completed'">Completed</button>
+              </div>
+            </div>
+
+            <!-- task list  -->
+            <div
+              class="space-y-2">
+              <template x-if="filteredTodos.length === 0">
+                <div class="text-center py-8 text-gray-500">
+                  <p>No tasks found. Add a new task to get started!</p>
+                </div>
+              </template>
+
+              <ul class="space-y-2">
+                <template x-for="todo in filteredTodos" :key="todo.id">
+                  <li
+                    x-show="true"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    class="bg-white shadow p-4 rounded flex justify-between items-center"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        :checked="todo.completed"
+                        @change="toggleTodo(todo.id)"
+                        class="form-checkbox"
+                      />
+                      <template x-if="editingId === todo.id">
+                        <input
+                          x-model="todo.text"
+                          @keyup.enter="saveEdit(todo)"
+                          class="border px-2 py-1 rounded text-sm"
+                        />
+                      </template>
+                      <template x-if="editingId !== todo.id">
+                        <span
+                          x-text="todo.text"
+                          :class="{ 'line-through text-gray-400': todo.completed }"
+                        ></span>
+                      </template>
+                      
+                    </div>
+                    <div class="flex items-center space-x-2">
+                    <button
+                      @click="editingId = todo.id"
+                      class="text-red-500 hover:text-red-700 text-xl font-bold"
+                    >
+                    <Edit class="w-5 h-5" />
+                    </button>
+                    <button
+                      @click="deleteTodo(todo.id)"
+                      class="text-red-500 hover:text-red-700 text-xl font-bold"
+                    >
+                    <Trash2 class="w-5 h-5" />
+                    </button>
+                  </div>
+                  </li>
+                </template>
+              </ul>
+              </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</BaseLayout>

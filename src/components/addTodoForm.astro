@@ -1,25 +1,44 @@
-<form @submit.prevent="handleAddTodo" class="space-y-2">
+---
+---
+
+<div
+  x-data="{
+    text: '',
+    async handleSubmit() {
+      if (!this.text.trim()) return;
+
+      try {
+        const res = await fetch('/api/todo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: this.text.trim() })
+        });
+        const newTodo = await res.json();
+        this.$dispatch('new-todo-added', newTodo);
+        this.text = '';
+      } catch {
+        alert('Failed to add task');
+      }
+    }
+  }"
+  class="space-y-2"
+>
+  <form @submit.prevent="handleSubmit">
     <div class="flex items-center space-x-2">
       <input
         type="text"
-        x-model="newTodoText"
-        @input="error = ''"
+        x-model="text"
         placeholder="Add a new task..."
-        :class="error ? 'border-red-500' : 'border-gray-300'"
-        class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-      />
+        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+      >
       <button
         type="submit"
-        class="flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-colors"
+        class="flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none"
       >
-        <!-- Replace this with an inline SVG if you don't have Lucide in Alpine -->
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
         </svg>
       </button>
     </div>
-    <template x-if="error">
-      <p class="text-red-500 text-sm" x-text="error"></p>
-    </template>
   </form>
-  
+</div>

@@ -1,0 +1,22 @@
+---
+import { ListTodo, CircleCheckBig, Circle } from '@lucide/astro';
+const { stats } = Astro.props;
+const statsJSON = JSON.stringify(stats);
+---
+
+<div x-init={`{ stats: ${statsJSON} }`} class="flex flex-wrap gap-4 mt-2 text-white/80">
+  <div class="flex items-center space-x-1">
+    <ListTodo class="h-4 w-4" />
+    <span class="text-sm">Total: <span x-text = "stats.total" ></span></span>
+  </div>
+
+  <div class="flex items-center space-x-1">
+    <CircleCheckBig class="h-4 w-4" />
+    <span class="text-sm">Completed: <span x-text="stats.completed"></span></span>
+  </div>
+
+  <div class="flex items-center space-x-1">
+    <Circle class="h-4 w-4" />
+    <span class="text-sm">Remaining: <span x-text="stats.remaining"></span></span>
+  </div>
+</div>

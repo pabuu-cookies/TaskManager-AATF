@@ -1,0 +1,54 @@
+---
+const { todo } = Astro.props;
+---
+
+<div 
+  x-data="{
+    completed: ${todo.completed},
+    text: '${todo.text}',
+    id: '${todo._id}',
+    toggleTodo() {
+      this.completed = !this.completed;
+      console.log('Toggled:', this.id);
+      // Add backend call if needed
+    },
+    deleteTodo() {
+      console.log('Deleted:', this.id);
+      // Add backend call if needed
+    }
+  }"
+  class="flex items-center justify-between p-3 bg-white border rounded-lg shadow-sm hover:shadow-md transition-shadow group"
+>
+  <!-- Left side: checkbox + text -->
+  <div class="flex items-center space-x-3">
+    <button
+      @click="toggleTodo"
+      class="flex-shrink-0 w-6 h-6 rounded-full border flex items-center justify-center transition-colors"
+      :class="completed ? 'bg-purple-600 border-purple-600 text-white' : 'border-gray-300 text-transparent hover:border-purple-600'"
+    >
+      <template x-if="completed">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+      </template>
+      <template x-if="!completed">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-0 group-hover:opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <circle cx="12" cy="12" r="9" stroke-width="2" />
+        </svg>
+      </template>
+    </button>
+
+    <span :class="completed ? 'text-gray-400 line-through' : 'text-gray-700'" class="transition-colors" x-text="text"></span>
+  </div>
+
+  <!-- Delete Button -->
+  <button
+    @click="deleteTodo"
+    class="text-gray-400 hover:text-red-500 transition-colors"
+    aria-label="Delete task"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+    </svg>
+  </button>
+</div>
