@@ -1,15 +1,14 @@
 ---
-const { initialFilter = 'all', counts = { total: 0, remaining: 0, completed: 0 } } = Astro.props;
 ---
 
 <div 
-  x-data="filterButtons({ initialFilter: 'all', counts: { total: 5, remaining: 3, completed: 2 } })" 
+  x-data="filterButtons({ initialFilter: 'all', counts: { total: 0, remaining: 0, completed: 0 } })" 
   class="flex flex-wrap gap-2"
 >
   <template x-for="btn in filters" :key="btn.id">
     <button
       @click="setFilter(btn.id)"
-      x-text="`${btn.label} (${btn.count})`"
+      x-text="btn.label (btn.count)"
       :class="filter === btn.id 
         ? 'px-4 py-2 rounded-full text-sm font-medium bg-purple-600 text-white' 
         : 'px-4 py-2 rounded-full text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200'"

@@ -6,7 +6,10 @@ export async function signupController({ name, email, password }) {
   const result = await registerUser(name, email, password);
 
   if (!result.success) {
-    return errorResponse();
+    return errorResponse(
+      result.message || "failed to signup",
+      result.status || 400
+    );
   }
 
   return successResponse({ message: "User successfully created" }, 201);
@@ -17,9 +20,12 @@ export async function loginController(body) {
   const result = await loginUser(email, password);
 
   if (!result.success) {
-    return errorResponse(result.message, result.status);
+    return errorResponse(
+      result.message || "failed to login",
+      result.status || 400
+    );
   }
-  const { user, token } = result.data;
+  const { user, token } = result;
   const cookieHeader = cookie.serialize("token", token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -28,7 +34,7 @@ export async function loginController(body) {
     path: "/",
   });
 
-  return successResponse({ user }, 200, { "Set-Cookie": cookieHeader });
+  return successResponse(user, 200, { "Set-Cookie": cookieHeader });
 }
 
 export function logoutController() {

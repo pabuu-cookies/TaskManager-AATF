@@ -10,7 +10,7 @@ import { verifyAuth } from "../../../lib/utils/verifyAuth.js";
 
 export async function PATCH(context) {
   try {
-    const { user, err, status } = await verifyAuth(request);
+    const { user, err, status } = await verifyAuth(context.request);
     if (!user) return errorResponse(err, status);
 
     const body = await context.request.json();
@@ -28,7 +28,7 @@ export async function PATCH(context) {
 
 export async function DELETE(context) {
   try {
-    const { user, error, status } = await verifyAuth(request);
+    const { user, error, status } = await verifyAuth(context.request);
     if (!user) return errorResponse(error, status);
 
     const { id } = context.params;

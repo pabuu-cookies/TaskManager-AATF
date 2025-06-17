@@ -17,11 +17,12 @@ export async function createTodo(userId, { text }) {
 
     todos.push(newTodo);
     await writeJsonFile(TODOS_FILE, todos);
+    console.log("new todod fromn service", newTodo);
 
     return { success: true, data: newTodo };
   } catch (err) {
     console.error("❌ Failed to create todo:", err);
-    return { success: false, message: "Server error" };
+    return { success: false, message: "Server error", status: 500 };
   }
 }
 
@@ -35,7 +36,7 @@ export async function getAllTodos(userId) {
     return { success: true, data: userTodos };
   } catch (err) {
     console.error("❌ Failed to fetch todos:", err);
-    return { success: false, message: "Server error" };
+    return { success: false, message: "Server error", status: 500 };
   }
 }
 
@@ -45,7 +46,7 @@ export async function updateTodo(userId, todoId, updateData) {
     const index = todos.findIndex((t) => t.id === todoId && t.user === userId);
 
     if (index === -1) {
-      return { success: false, message: "Todo not found" };
+      return { success: false, message: "Todo not found", status: 400 };
     }
 
     todos[index] = { ...todos[index], ...updateData };
@@ -54,7 +55,7 @@ export async function updateTodo(userId, todoId, updateData) {
     return { success: true, data: todos[index] };
   } catch (err) {
     console.error("❌ Failed to update todo:", err);
-    return { success: false, message: "Server error" };
+    return { success: false, message: "Server error", status: 500 };
   }
 }
 
@@ -66,7 +67,7 @@ export async function deleteTodo(userId, todoId) {
     );
 
     if (filtered.length === todos.length) {
-      return { success: false, message: "Todo not found" };
+      return { success: false, message: "Todo not found", status: 400 };
     }
 
     await writeJsonFile(TODOS_FILE, filtered);
@@ -74,6 +75,6 @@ export async function deleteTodo(userId, todoId) {
     return { success: true, data: { id: todoId } };
   } catch (err) {
     console.error("❌ Failed to delete todo:", err);
-    return { success: false, message: "Server error" };
+    return { success: false, message: "Server error", status: 500 };
   }
 }

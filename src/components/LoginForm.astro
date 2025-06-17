@@ -11,9 +11,8 @@
       .then(data => {
         console.log('Login success:', data);
         if (data.success) {
-        console.log('storing user in local storage', data.user)
-          localStorage.setItem('user', JSON.stringify(data.user));
-          window.location.href = '/';
+          localStorage.setItem('user', JSON.stringify(data.data));  //its not inconsistency in response, its just .then (data) 
+          window.location.href = '/dashboard';
         } else {
           throw new Error('Login failed');
         }

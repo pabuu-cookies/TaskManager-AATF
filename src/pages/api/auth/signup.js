@@ -1,7 +1,7 @@
 export const prerender = false;
-import { validateSignup } from "../../lib/middleware/validateSignup.js";
-import { signupController } from "../../lib/controllers/userController.js";
-import { errorResponse } from "../../lib/utils/responseHandler.js";
+import { validateSignup } from "../../../lib/middleware/validateSignup";
+import { signupController } from "../../../lib/controllers/userController.js";
+import { errorResponse } from "../../../lib/utils/responseHandler.js";
 
 export async function POST({ request }) {
   try {

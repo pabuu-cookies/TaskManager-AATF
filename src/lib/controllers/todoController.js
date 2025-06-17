@@ -16,13 +16,7 @@ export async function createTodoController(userId, body) {
     );
   }
 
-  return successResponse(
-    {
-      message: "Todo created successfully",
-      data: result.data,
-    },
-    201
-  );
+  return successResponse(result.data, 201);
 }
 
 export async function getAllTodosController(userId) {
@@ -35,10 +29,7 @@ export async function getAllTodosController(userId) {
     );
   }
 
-  return successResponse({
-    message: "Todos fetched successfully",
-    data: result.data,
-  });
+  return successResponse(result.data);
 }
 
 export async function updateTodoController(userId, todoId, body) {
@@ -51,10 +42,7 @@ export async function updateTodoController(userId, todoId, body) {
     );
   }
 
-  return successResponse({
-    message: "Todo updated successfully",
-    data: result.data,
-  });
+  return successResponse(result.data);
 }
 
 export async function deleteTodoController(userId, todoId) {

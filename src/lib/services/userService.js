@@ -53,13 +53,10 @@ export async function loginUser(email, password) {
 
     return {
       success: true,
-      data: {
-        user: tokenPayload,
-        token,
-      },
+      user: tokenPayload,
+      token,
     };
   } catch (err) {
-    console.error("Login error:", err);
     return {
       success: false,
       message: "Server error",
