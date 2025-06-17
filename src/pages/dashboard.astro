@@ -1,4 +1,5 @@
 ---
+export const prerender = false;
 import { verifyAuth } from "../lib/utils/verifyAuth.js";
 
 const {  error } = await verifyAuth(Astro.request);
