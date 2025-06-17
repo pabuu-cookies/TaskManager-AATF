@@ -63,8 +63,7 @@ import TodoStats from "../components/todoStats.astro";
           body: JSON.stringify({ text: this.newTodoText.trim() })
         });
         const newTodojson = await res.json();
-        const newTodo = newTodojson.data;
-        this.upsertTodo(newTodo);
+        this.upsertTodo(newTodojson.data);
         this.newTodoText = '';;
       } catch(error) {
         alert('Failed to add task', error);
@@ -96,7 +95,6 @@ import TodoStats from "../components/todoStats.astro";
           body: JSON.stringify({ text: todo.text })
         });
         const updated = await res.json();
-        console.log('updated', updated, updated.data)
         this.upsertTodo(updated.data);
         this.editingId = null;
       } catch {
