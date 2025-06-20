@@ -1,0 +1,29 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+const { blok } = Astro.props;
+---
+
+<div class="h-full flex items-center justify-center bg-white border border-red-500">
+    <div class="w-full max-w-md space-y-6 min-h-[100px]">
+      
+      <!-- Login Form -->
+      <div x-show="!$store.auth.isLogin"
+      x-transition
+      x-cloak>
+        <StoryblokComponent blok={blok.login_form[0]} />
+      </div>
+
+      <!-- Signup Form -->
+      <div x-show="$store.auth.isLogin"
+      x-transition 
+      x-cloak>
+        <StoryblokComponent blok={blok.signup_form[0]}/>
+      </div>
+    </div>
+  </div>
+<style>
+  [x-cloak] { display: none; }
+  .animate-fade-in {
+    animation: fadeIn 0.7s forwards;
+  }
+</style>

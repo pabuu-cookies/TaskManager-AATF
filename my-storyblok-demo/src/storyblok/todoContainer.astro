@@ -1,0 +1,161 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+import Header from '../components/Header.astro';
+import TodoStats from '../components/todoStats.astro';
+
+const { blok } = Astro.props;
+---
+
+<div
+  x-data="todoContainer()"
+  x-init="init"
+  class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50"
+>
+  <Header />
+
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto">
+      <div class="bg-white rounded-xl shadow-lg">
+
+        <div class="p-6 bg-purple-600 text-white">
+          <h1 class="text-2xl font-bold">My Tasks</h1>
+          <TodoStats x-bind:stats="stats" />
+        </div>
+
+        <div class="p-6">
+          {/* Render AddTodoForm and TodoList blocks */}
+          {blok.content.map(childBlok => (
+            <StoryblokComponent blok={childBlok} />
+          ))}
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script is:inline>
+  function todoContainer() {
+
+    return {
+      todos: [],
+      filter: 'all',
+      editingId: null,
+      newTodoText: '',
+      _listenerAdded: false,
+
+      get completedCount() {
+        return this.todos.filter(todo => todo.completed).length;
+      },
+      get remainingCount() {
+        return this.todos.filter(todo => !todo.completed).length;
+      },
+      get filteredTodos() {
+        if (this.filter === 'active') return this.todos.filter(t => !t.completed);
+        if (this.filter === 'completed') return this.todos.filter(t => t.completed);
+        return this.todos;
+      },
+      get stats() {
+        return {
+          total: this.todos.length,
+          completed: this.completedCount,
+          remaining: this.remainingCount,
+        };
+      },
+
+      init(){
+        this.fetchTodos();
+        if (this._listenerAdded) return;  // prevent adding multiple times
+      this._listenerAdded = true;
+
+      window.addEventListener('todo-added', (event) => {
+        this.upsertTodo(event.detail);
+      });
+      },
+
+      async fetchTodos() {
+        try {
+            const res = await fetch('/api/todo', {
+            credentials: 'include'
+        });
+          const json = await res.json();
+          if (!Array.isArray(json.data)) throw new Error('Invalid todos data');
+          this.todos = json.data;
+        } catch (e) {
+            this.todos = []; // Set a safe fallback
+            console.error('❌ Failed to fetch todos:', e.message);
+            alert('❌ Failed to fetch todos. Are you logged in?');
+        }
+      },
+
+      async addNewTodo() {
+        if (!this.newTodoText.trim()) return;
+
+        try {
+          const res = await fetch('/api/todo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ text: this.newTodoText.trim() })
+          });
+          const newTodojson = await res.json();
+          this.upsertTodo(newTodojson.data);
+          this.newTodoText = '';
+        } catch(error) {
+          alert('Failed to add task', error);
+        }
+      },
+
+      async toggleTodo(id) {
+        const todo = this.todos.find(t => t.id === id);
+        if (!todo) return;
+        try {
+          const res = await fetch(`/api/todo/${id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ completed: !todo.completed })
+          });
+          const updated = await res.json();
+          this.upsertTodo(updated.data);
+        } catch {
+          alert('❌ Failed to update task');
+        }
+      },
+
+      async saveEdit(todo) {
+        try {
+          const res = await fetch(`/api/todo/${todo.id}`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: todo.text })
+          });
+          const updated = await res.json();
+          this.upsertTodo(updated.data);
+          this.editingId = null;
+        } catch {
+          alert('❌ Failed to update');
+        }
+      },
+
+      async deleteTodo(id) {
+        try {
+          await fetch(`/api/todo/${id}`, { method: 'DELETE', credentials: 'include', });
+          this.todos = this.todos.filter(todo => todo.id !== id);
+        } catch {
+          alert('❌ Failed to delete task');
+        }
+      },
+
+      upsertTodo(updatedTodo) {
+        const index = this.todos.findIndex(t => t.id === updatedTodo.id);
+        if (index === -1) {
+          this.todos.unshift(updatedTodo);
+        } else {
+          this.todos.splice(index, 1, updatedTodo);
+        }
+      },
+    }
+  }
+</script>

@@ -1,0 +1,24 @@
+---
+import '../styles/global.css'
+const { title = "TaskMate" } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{title}</title>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <script is:inline>
+      window.addEventListener('alpine:init', () => {
+        window.Alpine.store('auth', {
+          isLogin: true
+        });
+      });
+    </script>
+  </head>
+  <body class="bg-purple-500 min-h-screen p-4 overflow-y-hidden">
+    <slot />
+  </body>
+</html>

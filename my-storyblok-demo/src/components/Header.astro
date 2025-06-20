@@ -1,0 +1,66 @@
+---
+---
+
+<header class="bg-white shadow-sm">
+  <div class="container mx-auto px-4 py-4">
+    <div class="flex items-center justify-between" x-data="{
+      user: null,
+      init() {
+        const stored = localStorage.getItem('user');
+        if (stored) {
+          this.user = JSON.parse(stored);
+        }
+      }
+    }">
+      <div class="flex items-center">
+        <h1 class="text-xl font-bold text-purple-600">TaskMate</h1>
+      </div>
+
+      <div class="flex items-center space-x-4" x-show="user">
+        <!-- User Info -->
+        <div class="flex items-center space-x-2">
+          <div class="bg-purple-100 p-2 rounded-full">
+            <!-- Replace with inline SVG if not using lucide-react -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A9.97 9.97 0 0112 15c2.21 0 4.248.714 5.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <span class="text-gray-700 font-medium hidden sm:inline-block" x-text="user.name">
+          </span>
+        </div>
+
+        <!-- Logout Button -->
+        <button
+        @click="$dispatch('logout')"
+          class="flex items-center space-x-1 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+          </svg>
+          <span class="hidden sm:inline-block">Logout</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script is:inline>
+  window.addEventListener('logout', async () => {
+    try {
+      const res = await fetch('api/auth/signout', {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      } else {
+        console.error('Failed to logout');
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  });
+</script>
+

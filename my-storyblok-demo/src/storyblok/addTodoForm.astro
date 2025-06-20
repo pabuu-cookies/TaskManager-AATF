@@ -1,0 +1,48 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+const { blok } = Astro.props;
+---
+
+<form @submit.prevent="submitNewTodo" x-data="addTodoForm()">
+  {blok.add_form.map(field => (
+    <StoryblokComponent blok={field} />
+  ))}
+
+  <button
+    type="submit"
+    class="flex items-center justify-center p-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 focus:outline-none"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+    </svg>
+    <span class="ml-2">Add</span>
+  </button>
+</form>
+
+<script is:inline>
+  function addTodoForm() {
+    return {
+      newTodoText: '',
+      submitNewTodo() {
+        if (!this.newTodoText.trim()) return;
+
+        fetch('/api/todo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: this.newTodoText.trim() })
+        })
+        .then(res => res.json())
+        .then(data => {
+          this.newTodoText = '';
+
+          // Optional: dispatch a custom event to let parent know
+          window.dispatchEvent(new CustomEvent('todo-added', { detail: data.data }));
+        })
+        .catch(err => {
+          console.error('Error adding todo:', err);
+          alert('❌ Failed to add task');
+        });
+      }
+    }
+  }
+</script>

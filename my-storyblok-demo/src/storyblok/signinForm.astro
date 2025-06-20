@@ -1,0 +1,47 @@
+---
+import StoryblokComponent from '@storyblok/astro/StoryblokComponent.astro';
+const { blok } = Astro.props;
+---
+
+<form @submit.prevent="submitLogin" x-data="loginForm()">
+  {blok.columns.map(field => (
+    <StoryblokComponent blok={field} />
+  ))}
+
+  <button
+    type="submit"
+    class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700"
+  >
+    Sign In
+  </button>
+</form>
+
+<script is:inline>
+  function loginForm() {
+    return {
+      email: '',
+      password: '',
+      name: '', // Still included in case the form uses it
+      submitLogin() {
+        fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: this.email,
+            password: this.password
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.setItem('user', JSON.stringify(data.data));
+            window.location.href = '/dashboard';
+          } else {
+            throw new Error('Login failed');
+          }
+        })
+        .catch(err => console.error('Login error:', err));
+      }
+    };
+  }
+</script>

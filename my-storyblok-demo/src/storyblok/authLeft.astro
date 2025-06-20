@@ -1,0 +1,53 @@
+---
+const { blok } = Astro.props;
+
+const alpineData = {
+  blok: {
+    message_heading_login: blok.message_heading_login,
+    message_heading_signup: blok.message_heading_signup,
+    message_text_login: blok.message_text_login,
+    message_text_signup: blok.message_text_signup,
+    button_text_login: blok.button_text_login,
+    button_text_signup: blok.button_text_signup
+  }
+};
+---
+
+
+  <div x-data={`${JSON.stringify(alpineData)}`} class="bg-purple-600 h-full flex items-center justify-center text-white">
+    <div x-init="$el.classList.add('animate-fade-in')" class="max-w-md transition-opacity duration-500 ease-out">
+      <h1 class="text-4xl font-bold mb-6">{blok.title}</h1>
+      <p class="text-xl mb-8">{blok.tagline}</p>
+
+      <div class="bg-white/20 p-6 rounded-lg backdrop-blur-sm">
+        <h2 class="text-2xl font-semibold mb-4" x-text="$store.auth.isLogin ? blok.message_heading_login : blok.message_heading_signup"></h2>
+        <p class="mb-6" x-text="$store.auth.isLogin ? blok.message_text_login : blok.message_text_signup"></p>
+        <button
+          @click="$store.auth.isLogin = !$store.auth.isLogin"
+          class="px-6 py-2 bg-white text-purple-600 rounded-full font-medium hover:bg-purple-100 transition-colors"
+          x-text="$store.auth.isLogin ? blok.button_text_login : blok.button_text_signup"
+        ></button>
+      </div>
+    </div>
+  </div>
+
+
+<style>
+  [x-cloak] { display: none; }
+  .animate-fade-in {
+    animation: fadeIn 0.7s forwards;
+  }
+
+  /* @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(40px);
+      filter: blur(4px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+  } */
+</style>

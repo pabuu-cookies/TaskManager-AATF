@@ -1,0 +1,60 @@
+---
+import { ListTodo, CircleCheckBig, Circle } from '@lucide/astro';
+const { stats } = Astro.props;
+const statsJSON = JSON.stringify(stats);
+---
+
+<div x-init={`{ stats: ${statsJSON} }`} class="mt-4">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-purple-700 p-4 rounded-lg text-white/90 shadow-sm">
+    
+    <!-- Stats Section -->
+    <div class="flex flex-wrap gap-4">
+      <div class="flex items-center gap-1">
+        <ListTodo class="h-4 w-4" />
+        <span class="text-sm">
+          Total: <span x-text="stats.total"></span>
+        </span>
+      </div>
+      <div class="flex items-center gap-1">
+        <CircleCheckBig class="h-4 w-4" />
+        <span class="text-sm">
+          Completed: <span x-text="stats.completed"></span>
+        </span>
+      </div>
+      <div class="flex items-center gap-1">
+        <Circle class="h-4 w-4" />
+        <span class="text-sm">
+          Remaining: <span x-text="stats.remaining"></span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Filter Buttons Section -->
+    <div class="flex gap-2 justify-start md:justify-end">
+      <button
+        type="button"
+        class="px-3 py-1 rounded text-sm bg-white/10 hover:bg-white/20 transition"
+        :class="filter === 'all' ? 'font-bold bg-white/20' : ''"
+        @click="filter = 'all'"
+      >
+        All
+      </button>
+      <button
+        type="button"
+        class="px-3 py-1 rounded text-sm bg-white/10 hover:bg-white/20 transition"
+        :class="filter === 'active' ? 'font-bold bg-white/20' : ''"
+        @click="filter = 'active'"
+      >
+        Active
+      </button>
+      <button
+        type="button"
+        class="px-3 py-1 rounded text-sm bg-white/10 hover:bg-white/20 transition"
+        :class="filter === 'completed' ? 'font-bold bg-white/20' : ''"
+        @click="filter = 'completed'"
+      >
+        Completed
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,25 @@
+---
+export const prerender = false;
+import { verifyAuth } from "../lib/utils/verifyAuth.js";
+
+const {  error } = await verifyAuth(Astro.request);
+
+if (error) {
+  return Astro.redirect("/");
+} 
+
+import { useStoryblokApi } from "@storyblok/astro";
+import StoryblokComponent from "@storyblok/astro/StoryblokComponent.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const storyblokApi = useStoryblokApi()
+const { data } = await storyblokApi.get("cdn/stories/dashboard", {
+version: "draft",
+});
+
+const { story } = data;
+---
+
+<BaseLayout>
+    <StoryblokComponent blok={story.content} />
+</BaseLayout>
